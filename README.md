@@ -73,11 +73,11 @@ curl localhost && curl localhost
 ```
 mv /var/www/index.nginx-debian.html /var/www/html/
 ```
-**Добавим и удалим файл test в каталог /etc/nginx:**
+**Создадим и удалим файл с именем 'test' в каталоге /etc/nginx:**
 ```
 touch /etc/nginx/test; rm /etc/nginx/test
 ```
-В результате с сервера **web** на rsuslog сервера **log** будет переданы логи nginx (access и error) и auditd (логи auditd записи в папку /etc/nginx)  
+В результате с сервера **web** на rsyslog сервера **log** будет переданы логи nginx (access и error) и auditd (логи auditd записи в папку /etc/nginx)  
 Проверим, что сервер log корректно принял логи и разместил из в папке **/var/log/rsyslog/web**  
 Для этого зайдем на машину **web** и повысим свои полномочия до root:
 ```
@@ -94,26 +94,31 @@ ls -la /var/log/rsyslog/web
 <summary> результат выполнения команды: </summary>
 
 ```
-
+drwxr-xr-x 2 root root 4096 Feb 21 15:13 .
+drwxr-xr-x 4 root root 4096 Feb 21 15:08 ..
+-rw-r----- 1 root adm   989 Feb 21 15:13 auditd.log
+-rw-r----- 1 root adm   910 Feb 21 15:08 nginx_access.log
+-rw-r----- 1 root adm   420 Feb 21 15:08 nginx_error.log
 ```
 </details>
 
 Посмотрим access-логи Nginx:
 
 ```
-ls -la /var/log/rsyslog/web
+cat /var/log/rsyslog/web/nginx_access.log
 ```
 
 <details>
 <summary> результат выполнения команды: </summary>
 
 ```
-total 20
-drwxr-xr-x 2 root root 4096 Feb 21 15:13 .
-drwxr-xr-x 4 root root 4096 Feb 21 15:08 ..
--rw-r----- 1 root adm   989 Feb 21 15:13 auditd.log
--rw-r----- 1 root adm   910 Feb 21 15:08 nginx_access.log
--rw-r----- 1 root adm   420 Feb 21 15:08 nginx_error.log
+2025-02-21T15:08:00+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:00 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2025-02-21T15:08:00+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:00 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2025-02-21T15:08:00+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:00 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2025-02-21T15:08:00+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:00 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2025-02-21T15:08:00+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:00 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2025-02-21T15:08:08+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:08 +0000] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
+2025-02-21T15:08:08+00:00 web nginx_access: 127.0.0.1 - - [21/Feb/2025:15:08:08 +0000] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
 ```
 </details>
 
@@ -127,7 +132,6 @@ cat /var/log/rsyslog/web/nginx_error.log
 <summary> результат выполнения команды: </summary>
 
 ```
-root@log:~# cat /var/log/rsyslog/web/nginx_error.log
 2025-02-21T15:08:08+00:00 web nginx_error: 2025/02/21 15:08:08 [error] 2576#2576: *6 directory index of "/var/www/html/" is forbidden, client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost"
 2025-02-21T15:08:08+00:00 web nginx_error: 2025/02/21 15:08:08 [error] 2576#2576: *7 directory index of "/var/www/html/" is forbidden, client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost"
 ```
@@ -148,4 +152,4 @@ cat /var/log/rsyslog/web/auditd.log
 ```
 </details>
 
-Как мы видим nginx и rsuslog сервера **web** корректно отправляют логи на rsuslog сервера **log**.
+Как мы видим nginx и rsyslog сервера **web** корректно отправляют логи на rsyslog сервера **log**.
